@@ -57,9 +57,9 @@ namespace OrderShot.ViewModels
                                 else data.IsLong = true;
                                 _listSymbols.Add(data);
                             }
-                            SendListAsync();
                         }
                     }
+                    SendListAsync();
                 }
                 catch (Exception ex)
                 {
