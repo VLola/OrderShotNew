@@ -24,6 +24,7 @@ namespace OrderShotServer.ViewModels
     public class StrategyViewModel : INotifyPropertyChanged
     {
         private string _pathLog = $"{Directory.GetCurrentDirectory()}/log/";
+        private const double _second60 = 0.0006944444394321181;
         public void CloseStrategy()
         {
             if (!IsWait)
@@ -171,8 +172,24 @@ namespace OrderShotServer.ViewModels
             }
             else if (e.PropertyName == "IsHistoryView")
             {
-                TransactionHistoryView transactionHistoryView = new(StrategyModel.TransactionHistory, $"{StrategyModel.Name} | Distance: {StrategyModel.Distance} | Buffer: {StrategyModel.Buffer} | TakeProfit: {StrategyModel.TakeProfit} | StopLoss: {StrategyModel.StopLoss} | Delay: {StrategyModel.FollowPriceDelay}");
-                transactionHistoryView.ShowDialog();
+                TransactionHistoryView transactionHistoryView = new(StrategyModel);
+                transactionHistoryView.Show();
+            }
+        }
+        private void TransactionModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsView")
+            {
+                TransactionModel? transactionModel = sender as TransactionModel;
+                if (transactionModel != null)
+                {
+                    double start = transactionModel.OpenTime.ToOADate() - _second60;
+                    double end = transactionModel.CloseTime.ToOADate() + _second60;
+                    List<(double x, double y)> maker = StrategyModel.PointsIsMaker.Where(item => item.x > start && item.x < end).ToList();
+                    List<(double x, double y)> buyer = StrategyModel.PointsIsBuyer.Where(item => item.x > start && item.x < end).ToList();
+                    TransactionView transactionView = new(maker, buyer);
+                    transactionView.Show();
+                }
             }
         }
 
@@ -181,14 +198,14 @@ namespace OrderShotServer.ViewModels
             if(e.PropertyName == "Price" && !StrategyModel.IsStop)
             {
 
-                //if (SymbolModel.BuyerIsMaker)
-                //{
-                //    StrategyModel.PointsIsMaker.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
-                //}
-                //else
-                //{
-                //    StrategyModel.PointsIsBuyer.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
-                //}
+                if (SymbolModel.BuyerIsMaker)
+                {
+                    StrategyModel.PointsIsMaker.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
+                }
+                else
+                {
+                    StrategyModel.PointsIsBuyer.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
+                }
                 if (StrategyModel.IsOpenOrder)
                 {
                     if (StrategyModel.IsLong)
@@ -456,9 +473,11 @@ namespace OrderShotServer.ViewModels
         {
             App.Current.Dispatcher.Invoke((Action)delegate
             {
+                TransactionModel.PropertyChanged += TransactionModel_PropertyChanged;
                 StrategyModel.TransactionHistory.Add(TransactionModel);
             });
         }
+
         #endregion
 
         public void OrderUpdate(BinanceFuturesStreamOrderUpdate OrderUpdate)
@@ -483,7 +502,7 @@ namespace OrderShotServer.ViewModels
                         if (!StrategyModel.IsPartiallyFilled)
                         {
                             StrategyModel.IsPartiallyFilled = true;
-                            PartiallyFilledOpenOrder(OrderUpdate.UpdateData.AveragePrice, OrderUpdate.UpdateData.Side, OrderUpdate.UpdateData.UpdateTime);
+                            PartiallyFilledOpenOrder(OrderUpdate.UpdateData.OrderId, OrderUpdate.UpdateData.AveragePrice, OrderUpdate.UpdateData.Side, OrderUpdate.UpdateData.UpdateTime);
                         }
 
                     }
@@ -544,7 +563,7 @@ namespace OrderShotServer.ViewModels
                             Commission += OrderUpdate.UpdateData.Fee;
                             if (!StrategyModel.IsPartiallyFilled)
                             {
-                                OpenOrder(OrderUpdate.UpdateData.AveragePrice, OrderUpdate.UpdateData.Side, OrderUpdate.UpdateData.Quantity, OrderUpdate.UpdateData.UpdateTime, Commission);
+                                OpenOrder(OrderUpdate.UpdateData.OrderId, OrderUpdate.UpdateData.AveragePrice, OrderUpdate.UpdateData.Side, OrderUpdate.UpdateData.Quantity, OrderUpdate.UpdateData.UpdateTime, Commission);
                             }
                         }
                     }
@@ -554,18 +573,19 @@ namespace OrderShotServer.ViewModels
                 WriteLog(json);
             }
         }
-        private async void PartiallyFilledOpenOrder(decimal price, OrderSide side, DateTime time)
+        private async void PartiallyFilledOpenOrder(long orderId, decimal price, OrderSide side, DateTime time)
         {
             await Task.Run(async() => {
                 await Task.Delay(1000);
-                OpenOrder(price, side, Quantity, time, Commission);
+                OpenOrder(orderId, price, side, Quantity, time, Commission);
                 StrategyModel.IsPartiallyFilled = false;
             });
         }
-        private void OpenOrder(decimal price, OrderSide side, decimal quantity, DateTime time, decimal commission)
+        private void OpenOrder(long orderId, decimal price, OrderSide side, decimal quantity, DateTime time, decimal commission)
         {
 
             TransactionModel = new();
+            TransactionModel.Id = orderId;
             if (side == OrderSide.Buy) TransactionModel.IsLong = true;
             TransactionModel.OpenPrice = price;
             TransactionModel.Quantity = quantity;

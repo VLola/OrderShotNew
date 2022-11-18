@@ -1,18 +1,17 @@
 ﻿using Library.Models;
-using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace OrderShotControlLibrary.Views
 {
     public partial class TransactionHistoryView : Window
     {
-        public ObservableCollection<TransactionModel> TransactionModels { get; set; }
-        public TransactionHistoryView(ObservableCollection<TransactionModel> transactionModels, string name)
+        public StrategyModel StrategyModel { get; set; }
+        public TransactionHistoryView(StrategyModel strategyModel)
         {
-            TransactionModels = transactionModels;
+            StrategyModel = strategyModel;
             InitializeComponent();
             DataContext = this;
-            Title = name;
+            Title = $"{StrategyModel.Name} | Distance: {StrategyModel.Distance} | Buffer: {StrategyModel.Buffer} | TakeProfit: {StrategyModel.TakeProfit} | StopLoss: {StrategyModel.StopLoss} | Delay: {StrategyModel.FollowPriceDelay}";
         }
     }
 }
