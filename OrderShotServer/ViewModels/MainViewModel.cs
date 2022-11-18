@@ -251,7 +251,6 @@ namespace OrderShotServer.ViewModels
             }
         }
 
-        private List<ClientData> _symbols { get; set; } = new();
         private void AddSymbolViewModel()
         {
             try
@@ -265,17 +264,6 @@ namespace OrderShotServer.ViewModels
                         CheckSymbolViewModel(item);
                     }
                 }
-
-                _symbols.Clear();
-
-                if (ServerViewModel.ServerModel.Symbols != null && ServerViewModel.ServerModel.Symbols.Count > 0)
-                {
-                    foreach (var item in ServerViewModel.ServerModel.Symbols)
-                    {
-                        _symbols.Add(item);
-                    }
-                }
-
             }
             catch (Exception ex)
             {
@@ -318,22 +306,41 @@ namespace OrderShotServer.ViewModels
         {
             try
             {
-                if (_symbols.Count > 0)
+                if (Symbols.Count > 0)
                 {
-                    foreach (var item in _symbols)
+                    if (ServerViewModel.ServerModel.Symbols != null && ServerViewModel.ServerModel.Symbols.Count > 0)
                     {
-                        if (ServerViewModel.ServerModel.Symbols != null && ServerViewModel.ServerModel.Symbols.Count > 0)
+                        foreach (var symbol in Symbols)
                         {
-                            if (!ServerViewModel.ServerModel.Symbols.Contains(item))
+                            if(symbol.Strategies.Count > 0)
                             {
-                                SymbolViewModel? symbolViewModel = Symbols.FirstOrDefault(symbol => symbol.Symbol.Name == item.Symbol);
-                                if (symbolViewModel != null) RemoveStrategyViewModel(symbolViewModel, item);
+                                foreach (var strategy in symbol.Strategies)
+                                {
+                                    if(!ServerViewModel.ServerModel.Symbols.Any(item=>
+                                    item.Symbol == strategy.StrategyModel.Name
+                                    && item.Distance == strategy.StrategyModel.Distance
+                                    && item.Buffer == strategy.StrategyModel.Buffer
+                                    && item.TakeProfit == strategy.StrategyModel.TakeProfit
+                                    && item.StopLoss == strategy.StrategyModel.StopLoss
+                                    && item.FollowPriceDelay == strategy.StrategyModel.FollowPriceDelay
+                                    && item.IsShort == strategy.StrategyModel.IsShort
+                                    && item.IsLong == strategy.StrategyModel.IsLong))
+                                    strategy.CloseStrategy();
+                                }
                             }
                         }
-                        else
+                    }
+                    else
+                    {
+                        foreach (var symbol in Symbols)
                         {
-                            SymbolViewModel? symbolViewModel = Symbols.FirstOrDefault(symbol => symbol.Symbol.Name == item.Symbol);
-                            if (symbolViewModel != null) RemoveStrategyViewModel(symbolViewModel, item);
+                            if (symbol.Strategies.Count > 0)
+                            {
+                                foreach (var strategy in symbol.Strategies)
+                                {
+                                    strategy.CloseStrategy();
+                                }
+                            }
                         }
                     }
                 }
