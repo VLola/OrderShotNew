@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="OrderShotControlLibrary.Views.StatisticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OrderShotControlLibrary.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ListView x:Name="lv" ItemsSource="{Binding Path=StatisticsViewModel.StatisticsModels}" GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Win, StringFormat={}{0:N0}}" Width="70">Win</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=LongWin, StringFormat={}{0:N0}}" Width="70">LongWin</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=ShortWin, StringFormat={}{0:N0}}" Width="70">ShortWin</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Name}" Width="100" >Name</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Distance}" Width="70">Distance</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Buffer}" Width="70">Buffer</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=TakeProfit}" Width="70">TakeProfit</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=StopLoss}" Width="70">StopLoss</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=LongPlus}" Width="70">LongPlus</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=LongMinus}" Width="70">LongMinus</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=ShortPlus}" Width="70">ShortPlus</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=ShortMinus}" Width="70">ShortMinus</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=FollowPriceDelay}" Width="100">FollowPriceDelay</GridViewColumn>
+                    <GridViewColumn Header="View" Width="Auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate >
+                                <Button Content="Show" Command="{Binding Path=VisibleStrategyCommand}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="HistoryView" Width="Auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate >
+                                <Button Content="Transactions" Command="{Binding Path=TransactionHistoryCommand}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</UserControl>

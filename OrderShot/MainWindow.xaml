@@ -1,0 +1,149 @@
+﻿<Window x:Class="OrderShot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OrderShot" xmlns:control="clr-namespace:OrderShotControlLibrary.Views;assembly=OrderShotControlLibrary" xmlns:control1="clr-namespace:OrderShot.Views"
+        mc:Ignorable="d"
+        Title="Client" Height="800" Width="1200">
+    <Window.Resources>
+        <ResourceDictionary Source="/Styles/MainStyle.xaml"/>
+    </Window.Resources>
+    <Grid>
+        <Grid Style="{StaticResource styleGridLogin}">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <CheckBox Grid.Row="0" Content="Testnet" IsChecked="{Binding Path=LoginModel.IsTestnet}" Style="{StaticResource styleCheckBoxLogin}"/>
+            <Button Grid.Row="1" Content="Login" Command="{Binding Path=LoginClientCommand}" Style="{StaticResource styleButton}"/>
+        </Grid>
+        <Grid Style="{StaticResource styleGridMain}">
+            <TabControl>
+                <TabItem Header="Main">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Row="0" Grid.Column="0" Content="+" Command="{Binding AddStrategiesCommand}" Style="{StaticResource styleButton}"/>
+
+                            <WrapPanel Grid.Row="0" Grid.Column="1" Style="{StaticResource styleWrapPanel}">
+                                <TextBlock Text="D:" Style="{StaticResource styleTextBlockMain}"/>
+                                <TextBox Text="{Binding Path=MainModel.DistanceSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+                            </WrapPanel>
+                            <WrapPanel Grid.Row="0" Grid.Column="2" Style="{StaticResource styleWrapPanel}">
+                                <TextBlock Text="B:" Style="{StaticResource styleTextBlockMain}"/>
+                                <TextBox Text="{Binding Path=MainModel.BufferSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+                            </WrapPanel>
+                            <WrapPanel Grid.Row="0" Grid.Column="3" Style="{StaticResource styleWrapPanel}">
+                                <TextBlock Text="TP:" Style="{StaticResource styleTextBlockMain}"/>
+                                <TextBox Text="{Binding Path=MainModel.TakeProfitSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+                            </WrapPanel>
+                            <WrapPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource styleWrapPanel}">
+                                <TextBlock Text="SL:" Style="{StaticResource styleTextBlockMain}"/>
+                                <TextBox Text="{Binding Path=MainModel.StopLossSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+                            </WrapPanel>
+                            <WrapPanel Grid.Row="0" Grid.Column="5" Style="{StaticResource styleWrapPanel}">
+                                <TextBlock Text="FPD:" Style="{StaticResource styleTextBlockMain}"/>
+                                <TextBox Text="{Binding Path=MainModel.FollowPriceDelaySetting}" Style="{StaticResource styleTextBoxSetting}"/>
+                            </WrapPanel>
+                            <CheckBox Grid.Row="0" Grid.Column="6" Content="Run Chart" IsChecked="{Binding Path=MainModel.IsRunChart}" Style="{StaticResource styleCheckBoxMain}"/>
+                        </Grid>
+                        <Border Grid.Row="1" Style="{StaticResource styleBorder}"/>
+                        <Grid Grid.Row="1" Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Min volume:" Style="{StaticResource styleTextBlockMain}"/>
+                            <TextBox Grid.Column="1" Text="{Binding Path=MainModel.MinVolume}" Style="{StaticResource styleTextBoxMain}"/>
+                        </Grid>
+                        <Border Grid.Row="2" Style="{StaticResource styleBorder}"/>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Symbol" Style="{StaticResource styleTextBlockMain}"/>
+                            <TextBlock Grid.Column="1" Text="Price" Style="{StaticResource styleTextBlockMain}"/>
+                        </Grid>
+                        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Path=Symbols}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <control:SymbolSettingsView Grid.Column="0"/>
+                                            <control:SymbolView Grid.Column="1"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Charts">
+                    <TabControl ItemsSource="{Binding Path=ViewedStrategies}">
+                        <TabControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Path=StrategyModel.Name}" Style="{StaticResource styleTextBlockClose}"/>
+                                    <Grid Grid.Column="0" Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Path=StrategyModel.Distance, StringFormat=D: {0}}" Style="{StaticResource styleTextBlockClose}" Foreground="Green"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Path=StrategyModel.Buffer, StringFormat=B: {0}}" Style="{StaticResource styleTextBlockClose}" Foreground="Blue"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Path=StrategyModel.TakeProfit, StringFormat=TP: {0}}" Style="{StaticResource styleTextBlockClose}" Foreground="OrangeRed"/>
+                                    </Grid>
+                                    <Button Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Content="X" Command="{Binding Path=HiddenStrategyCommand}" Style="{StaticResource styleButtonClose}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate>
+                                <control1:ChartView/>
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
+                </TabItem>
+                <TabItem Header="Statistics">
+                    <Grid>
+                        <control:StatisticsView/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Window>

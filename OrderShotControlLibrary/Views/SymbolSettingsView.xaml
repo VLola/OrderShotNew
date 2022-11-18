@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="OrderShotControlLibrary.Views.SymbolSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OrderShotControlLibrary.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary Source="/Styles/SymbolStyle.xaml"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Row="0" Grid.Column="0" Content="+" Command="{Binding AddStrategyCommand}" Style="{StaticResource styleButton}"/>
+
+        <WrapPanel Grid.Row="0" Grid.Column="1" Style="{StaticResource styleWrapPanel}">
+            <TextBlock Text="D:" Style="{StaticResource styleTextBlock}"/>
+            <TextBox Text="{Binding Path=Symbol.DistanceSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+        </WrapPanel>
+        <WrapPanel Grid.Row="0" Grid.Column="2" Style="{StaticResource styleWrapPanel}">
+            <TextBlock Text="B:" Style="{StaticResource styleTextBlock}"/>
+            <TextBox Text="{Binding Path=Symbol.BufferSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+        </WrapPanel>
+        <WrapPanel Grid.Row="0" Grid.Column="3" Style="{StaticResource styleWrapPanel}">
+            <TextBlock Text="TP:" Style="{StaticResource styleTextBlock}"/>
+            <TextBox Text="{Binding Path=Symbol.TakeProfitSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+        </WrapPanel>
+        <WrapPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource styleWrapPanel}">
+            <TextBlock Text="SL:" Style="{StaticResource styleTextBlock}"/>
+            <TextBox Text="{Binding Path=Symbol.StopLossSetting}" Style="{StaticResource styleTextBoxSetting}"/>
+        </WrapPanel>
+        <WrapPanel Grid.Row="0" Grid.Column="5" Style="{StaticResource styleWrapPanel}">
+            <TextBlock Text="FPD:" Style="{StaticResource styleTextBlock}"/>
+            <TextBox Text="{Binding Path=Symbol.FollowPriceDelaySetting}" Style="{StaticResource styleTextBox}"/>
+        </WrapPanel>
+    </Grid>
+</UserControl>
+

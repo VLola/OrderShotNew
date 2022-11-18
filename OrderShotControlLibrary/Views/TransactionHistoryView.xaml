@@ -1,0 +1,98 @@
+﻿<Window x:Class="OrderShotControlLibrary.Views.TransactionHistoryView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OrderShotControlLibrary.Views"
+        mc:Ignorable="d"
+        Title="TransactionHistoryView" Height="450" Width="900">
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="styleTextBlockPosition">
+            <Setter Property="Foreground" Value="Red"/>
+            <Setter Property="Text" Value="Short"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsLong}" Value="True">
+                    <Setter Property="Foreground" Value="SpringGreen"/>
+                    <Setter Property="Text" Value="Long"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="styleTextBlockTotal">
+            <Setter Property="Foreground" Value="Red"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsPositive}" Value="True">
+                    <Setter Property="Foreground" Value="SpringGreen"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="styleTextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style TargetType="Grid" x:Key="styleGridTop">
+            <Setter Property="Margin" Value="0 10"/>
+        </Style>
+        <Style TargetType="Grid" x:Key="styleGrid">
+            <Setter Property="Background" Value="#FF161A1E"/>
+        </Style>
+    </Window.Resources>
+    <Grid Style="{StaticResource styleGrid}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Style="{StaticResource styleGridTop}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="OpenTime" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="1" Text="CloseTime" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="2" Text="Position" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="3" Text="OpenPrice" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="4" Text="ClosePrice" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="5" Text="Quantity" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="6" Text="Commission" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="7" Text="Profit" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="8" Text="Total" Style="{StaticResource styleTextBlock}"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Path=TransactionModels}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Path=OpenTime, StringFormat='{}{0:h:mm:ss}'}" Style="{StaticResource styleTextBlock}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Path=CloseTime, StringFormat='{}{0:h:mm:ss}'}" Style="{StaticResource styleTextBlock}"/>
+                                <TextBlock Grid.Column="2" Style="{StaticResource styleTextBlockPosition}"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Path=OpenPrice}" Style="{StaticResource styleTextBlock}"/>
+                                <TextBlock Grid.Column="4" Text="{Binding Path=ClosePrice}" Style="{StaticResource styleTextBlock}"/>
+                                <TextBlock Grid.Column="5" Text="{Binding Path=Quantity}" Style="{StaticResource styleTextBlock}"/>
+                                <TextBlock Grid.Column="6" Text="{Binding Path=Commission}" Style="{StaticResource styleTextBlock}"/>
+                                <TextBlock Grid.Column="7" Text="{Binding Path=Profit}" Style="{StaticResource styleTextBlock}"/>
+                                <TextBlock Grid.Column="8" Text="{Binding Path=Total}" Style="{StaticResource styleTextBlockTotal}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
