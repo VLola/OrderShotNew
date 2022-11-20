@@ -24,7 +24,7 @@ namespace OrderShotControlLibrary.Views
     public partial class TransactionView : Window
     {
         public WpfPlot MyPlot { get; set; }
-        public TransactionView(List<(double x, double y)> maker, List<(double x, double y)> buyer)
+        public TransactionView(HistoryModel HistoryModel)
         {
             InitializeComponent();
             DataContext = this;
@@ -33,13 +33,29 @@ namespace OrderShotControlLibrary.Views
             {
                 MyPlot.Plot.RenderLock();
 
-                foreach (var item in maker)
+                foreach (var item in HistoryModel.PointsIsMaker)
                 {
                     MyPlot.Plot.AddPoint(x: item.x, y: item.y, color: Color.Red, size: 4);
                 }
-                foreach (var item in buyer)
+                foreach (var item in HistoryModel.PointsIsBuyer)
                 {
                     MyPlot.Plot.AddPoint(x: item.x, y: item.y, color: Color.Green, size: 4);
+                }
+                foreach (var item in HistoryModel.PointsIsOpenLong)
+                {
+                    MyPlot.Plot.AddPoint(x: item.x, y: item.y, color: Color.LimeGreen, size: 12, shape: MarkerShape.filledDiamond);
+                }
+                foreach (var item in HistoryModel.PointsIsOpenShort)
+                {
+                    MyPlot.Plot.AddPoint(x: item.x, y: item.y, color: Color.OrangeRed, size: 12, shape: MarkerShape.filledDiamond);
+                }
+                foreach (var item in HistoryModel.PointsIsClosePositive)
+                {
+                    MyPlot.Plot.AddPoint(x: item.x, y: item.y, color: Color.LightBlue, size: 12, shape: MarkerShape.filledDiamond);
+                }
+                foreach (var item in HistoryModel.PointsIsCloseNegative)
+                {
+                    MyPlot.Plot.AddPoint(x: item.x, y: item.y, color: Color.Orange, size: 12, shape: MarkerShape.eks);
                 }
 
                 MyPlot.Plot.Style(ScottPlot.Style.Gray2);

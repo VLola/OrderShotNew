@@ -24,7 +24,6 @@ namespace OrderShotServer.ViewModels
     public class StrategyViewModel : INotifyPropertyChanged
     {
         private string _pathLog = $"{Directory.GetCurrentDirectory()}/log/";
-        private const double _second60 = 0.0006944444394321181;
         public void CloseStrategy()
         {
             if (!IsWait)
@@ -183,11 +182,7 @@ namespace OrderShotServer.ViewModels
                 TransactionModel? transactionModel = sender as TransactionModel;
                 if (transactionModel != null)
                 {
-                    double start = transactionModel.OpenTime.ToOADate() - _second60;
-                    double end = transactionModel.CloseTime.ToOADate() + _second60;
-                    List<(double x, double y)> maker = StrategyModel.PointsIsMaker.Where(item => item.x > start && item.x < end).ToList();
-                    List<(double x, double y)> buyer = StrategyModel.PointsIsBuyer.Where(item => item.x > start && item.x < end).ToList();
-                    TransactionView transactionView = new(maker, buyer);
+                    TransactionView transactionView = new(StrategyModel.HistoryModel.Get(transactionModel.OpenTime, transactionModel.CloseTime));
                     transactionView.Show();
                 }
             }
@@ -200,11 +195,11 @@ namespace OrderShotServer.ViewModels
 
                 if (SymbolModel.BuyerIsMaker)
                 {
-                    StrategyModel.PointsIsMaker.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
+                    StrategyModel.HistoryModel.PointsIsMaker.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
                 }
                 else
                 {
-                    StrategyModel.PointsIsBuyer.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
+                    StrategyModel.HistoryModel.PointsIsBuyer.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
                 }
                 if (StrategyModel.IsOpenOrder)
                 {
@@ -493,18 +488,28 @@ namespace OrderShotServer.ViewModels
                 }
                 else if (OrderUpdate.UpdateData.Status == OrderStatus.PartiallyFilled)
                 {
-                    if (OrderUpdate.UpdateData.Type == FuturesOrderType.Limit && StrategyModel.IsLong && OrderUpdate.UpdateData.Side == OrderSide.Buy || OrderUpdate.UpdateData.Type == FuturesOrderType.Limit && StrategyModel.IsShort && OrderUpdate.UpdateData.Side == OrderSide.Sell)
+                    if (OrderUpdate.UpdateData.Type == FuturesOrderType.Limit)
                     {
-                        StrategyModel.IsOpenOrder = true;
-                        CancelAllOrdersAsync();
-                        Quantity += OrderUpdate.UpdateData.QuantityOfLastFilledTrade;
-                        Commission += OrderUpdate.UpdateData.Fee;
-                        if (!StrategyModel.IsPartiallyFilled)
+                        if (StrategyModel.IsLong && OrderUpdate.UpdateData.Side == OrderSide.Buy || StrategyModel.IsShort && OrderUpdate.UpdateData.Side == OrderSide.Sell)
                         {
-                            StrategyModel.IsPartiallyFilled = true;
-                            PartiallyFilledOpenOrder(OrderUpdate.UpdateData.OrderId, OrderUpdate.UpdateData.AveragePrice, OrderUpdate.UpdateData.Side, OrderUpdate.UpdateData.UpdateTime);
+                            StrategyModel.IsOpenOrder = true;
+                            CancelAllOrdersAsync();
+                            Quantity += OrderUpdate.UpdateData.QuantityOfLastFilledTrade;
+                            Commission += OrderUpdate.UpdateData.Fee;
+                            if (!StrategyModel.IsPartiallyFilled)
+                            {
+                                StrategyModel.IsPartiallyFilled = true;
+                                PartiallyFilledOpenOrder(OrderUpdate.UpdateData.OrderId, OrderUpdate.UpdateData.AveragePrice, OrderUpdate.UpdateData.Side, OrderUpdate.UpdateData.UpdateTime);
+                            }
                         }
-
+                    }
+                    else if (OrderUpdate.UpdateData.Type == FuturesOrderType.Market)
+                    {
+                        if (StrategyModel.IsLong && OrderUpdate.UpdateData.Side == OrderSide.Sell || StrategyModel.IsShort && OrderUpdate.UpdateData.Side == OrderSide.Buy)
+                        {
+                            TransactionModel.Commission += OrderUpdate.UpdateData.Fee;
+                            TransactionModel.Profit += OrderUpdate.UpdateData.RealizedProfit;
+                        }
                     }
                 }
                 else if (OrderUpdate.UpdateData.Status == OrderStatus.Filled)
@@ -515,12 +520,15 @@ namespace OrderShotServer.ViewModels
                         {
                             StrategyModel.IsPositiveBet = false;
                             StrategyModel.PriceCloseOrder = Decimal.ToDouble(OrderUpdate.UpdateData.AveragePrice);
+                            // Add to history
+                            StrategyModel.HistoryModel.PointsIsCloseNegative.Add((OrderUpdate.UpdateData.UpdateTime.ToOADate(), StrategyModel.PriceCloseOrder));
 
                             TransactionModel.ClosePrice = OrderUpdate.UpdateData.AveragePrice;
                             TransactionModel.CloseTime = OrderUpdate.UpdateData.UpdateTime;
                             TransactionModel.Commission += OrderUpdate.UpdateData.Fee;
-                            TransactionModel.Profit = OrderUpdate.UpdateData.RealizedProfit;
+                            TransactionModel.Profit += OrderUpdate.UpdateData.RealizedProfit;
                             AddTransaction();
+
 
                             if (StrategyModel.IsLong)
                             {
@@ -539,11 +547,12 @@ namespace OrderShotServer.ViewModels
                             TakeProfitOrderId = 0;
                             StrategyModel.IsPositiveBet = true;
                             StrategyModel.PriceCloseOrder = Decimal.ToDouble(OrderUpdate.UpdateData.AveragePrice);
+                            StrategyModel.HistoryModel.PointsIsClosePositive.Add((OrderUpdate.UpdateData.UpdateTime.ToOADate(), StrategyModel.PriceCloseOrder));
 
                             TransactionModel.ClosePrice = OrderUpdate.UpdateData.AveragePrice;
                             TransactionModel.CloseTime = OrderUpdate.UpdateData.UpdateTime;
                             TransactionModel.Commission += OrderUpdate.UpdateData.Fee;
-                            TransactionModel.Profit = OrderUpdate.UpdateData.RealizedProfit;
+                            TransactionModel.Profit += OrderUpdate.UpdateData.RealizedProfit;
                             AddTransaction();
 
                             if (StrategyModel.IsLong)
@@ -592,6 +601,7 @@ namespace OrderShotServer.ViewModels
             TransactionModel.OpenTime = time;
             TransactionModel.Commission = commission;
 
+
             double priceDouble = Decimal.ToDouble(price);
             StrategyModel.PriceOpenOrder = priceDouble;
             decimal takeProfitPrice;
@@ -601,12 +611,14 @@ namespace OrderShotServer.ViewModels
                 takeProfitPrice = RoundPriceDecimal(price + (price * Convert.ToDecimal(StrategyModel.TakeProfit) / 100));
                 StrategyModel.StopLossOpenOrder = priceDouble - (priceDouble * StrategyModel.StopLoss / 100);
                 orderSide = OrderSide.Sell;
+                StrategyModel.HistoryModel.PointsIsOpenLong.Add((time.ToOADate(), priceDouble));
             }
             else
             {
                 takeProfitPrice = RoundPriceDecimal(price - (price * Convert.ToDecimal(StrategyModel.TakeProfit) / 100));
                 StrategyModel.StopLossOpenOrder = priceDouble + (priceDouble * StrategyModel.StopLoss / 100);
                 orderSide = OrderSide.Buy;
+                StrategyModel.HistoryModel.PointsIsOpenShort.Add((time.ToOADate(), priceDouble));
             }
             StrategyModel.TakeProfitOpenOrder = Decimal.ToDouble(takeProfitPrice);
 

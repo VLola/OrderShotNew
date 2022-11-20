@@ -14,8 +14,8 @@ namespace Library.Models
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
         public ObservableCollection<TransactionModel> TransactionHistory { get; set; } = new();
-        public List<(double x, double y)> PointsIsBuyer { get; set; } = new();
-        public List<(double x, double y)> PointsIsMaker { get; set; } = new();
+
+        public HistoryModel HistoryModel { get; set; } = new();
         private int _restartDalay { get; set; } = 10000;
         public int RestartDalay
         {
