@@ -57,15 +57,27 @@ namespace OrderShotControlLibrary.Views
                 {
                     MyPlot.Plot.AddPoint(x: item.x, y: item.y, color: Color.Orange, size: 12, shape: MarkerShape.eks);
                 }
+                foreach (var item in HistoryModel.LineIsLowerDistance)
+                {
+                    MyPlot.Plot.AddScatter(item.x, item.y, color: Color.Gray, lineWidth: 1, markerSize: 0);
+                }
+                foreach (var item in HistoryModel.LineIsUpperDistance)
+                {
+                    MyPlot.Plot.AddScatter(item.x, item.y, color: Color.Gray, lineWidth: 1, markerSize: 0);
+                }
+                foreach (var item in HistoryModel.LineIsLowerBuffer)
+                {
+                    MyPlot.Plot.AddScatter(item.x, item.y, color: Color.Gray, lineWidth: 1, markerSize: 0, lineStyle: LineStyle.Dash);
+                }
+                foreach (var item in HistoryModel.LineIsUpperBuffer)
+                {
+                    MyPlot.Plot.AddScatter(item.x, item.y, color: Color.Gray, lineWidth: 1, markerSize: 0, lineStyle: LineStyle.Dash);
+                }
 
                 MyPlot.Plot.Style(ScottPlot.Style.Gray2);
                 MyPlot.Plot.XAxis.TickLabelFormat("HH:mm:ss", dateTimeFormat: true);
                 MyPlot.Plot.RenderUnlock();
             }));
-        }
-        private void Loading()
-        {
-
         }
     }
 }

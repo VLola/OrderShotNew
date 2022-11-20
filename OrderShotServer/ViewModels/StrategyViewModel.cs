@@ -192,7 +192,6 @@ namespace OrderShotServer.ViewModels
         {
             if(e.PropertyName == "Price" && !StrategyModel.IsStop)
             {
-
                 if (SymbolModel.BuyerIsMaker)
                 {
                     StrategyModel.HistoryModel.PointsIsMaker.Add((SymbolModel.TimeDouble, SymbolModel.PriceDouble));
@@ -242,6 +241,8 @@ namespace OrderShotServer.ViewModels
                         }
                     }
                 }
+                // Updates lines to history
+                StrategyModel.HistoryModel.UpdateTimeLine();
             }
             
         }
@@ -382,6 +383,7 @@ namespace OrderShotServer.ViewModels
                 {
                     StrategyModel.UpperBuffer = price + (price * StrategyModel.Buffer / 200);
                     StrategyModel.LowerBuffer = price - (price * StrategyModel.Buffer / 200);
+
                     double upperDistance = price + (price * StrategyModel.Distance / 100);
                     double lowerDistance = price - (price * StrategyModel.Distance / 100);
 
@@ -409,6 +411,10 @@ namespace OrderShotServer.ViewModels
                         Quantity = 0m;
                         Commission = 0m;
                     }
+
+                    // Add lines to history
+                    StrategyModel.HistoryModel.AddLines(StrategyModel.UpperBuffer, StrategyModel.LowerBuffer, StrategyModel.UpperDistance, StrategyModel.LowerDistance);
+
                 }
             }
         }
