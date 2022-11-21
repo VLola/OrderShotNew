@@ -27,12 +27,26 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style TargetType="TextBlock" x:Key="styleTextBlockSumTotal">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5 0"/>
+            <Setter Property="Foreground" Value="Red"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding StrategyModel.IsPositiveSumTotal}" Value="True">
+                    <Setter Property="Foreground" Value="SpringGreen"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="TextBlock" x:Key="styleTextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="5 0"/>
         </Style>
         <Style TargetType="Grid" x:Key="styleGridTop">
             <Setter Property="Margin" Value="0 10"/>
+        </Style>
+        <Style TargetType="Grid" x:Key="styleGridBottom">
+            <Setter Property="Margin" Value="10"/>
         </Style>
         <Style TargetType="Grid" x:Key="styleGrid">
             <Setter Property="Background" Value="#FF161A1E"/>
@@ -42,6 +56,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Style="{StaticResource styleGridTop}">
             <Grid.ColumnDefinitions>
@@ -104,6 +119,15 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
+        </Grid>
+        <Grid Grid.Row="2" Style="{StaticResource styleGridBottom}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1" Text="Sum total:" Style="{StaticResource styleTextBlock}"/>
+            <TextBlock Grid.Column="2" Text="{Binding Path=StrategyModel.SumTotal}" Style="{StaticResource styleTextBlockSumTotal}"/>
         </Grid>
     </Grid>
 </Window>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Library.Models
@@ -16,6 +17,36 @@ namespace Library.Models
         public ObservableCollection<TransactionModel> TransactionHistory { get; set; } = new();
 
         public HistoryModel HistoryModel { get; set; } = new();
+        public StrategyModel() {
+            TransactionHistory.CollectionChanged += TransactionHistory_CollectionChanged;
+        }
+
+        private void TransactionHistory_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            SumTotal = TransactionHistory.Sum(item=>item.Total);
+            if (SumTotal > 0m) IsPositiveSumTotal = true;
+            else IsPositiveSumTotal = false;
+        }
+        private decimal _sumTotal { get; set; }
+        public decimal SumTotal
+        {
+            get { return _sumTotal; }
+            set
+            {
+                _sumTotal = value;
+                OnPropertyChanged("SumTotal");
+            }
+        }
+        private bool _isPositiveSumTotal { get; set; }
+        public bool IsPositiveSumTotal
+        {
+            get { return _isPositiveSumTotal; }
+            set
+            {
+                _isPositiveSumTotal = value;
+                OnPropertyChanged("IsPositiveSumTotal");
+            }
+        }
         private int _restartDalay { get; set; } = 10000;
         public int RestartDalay
         {
